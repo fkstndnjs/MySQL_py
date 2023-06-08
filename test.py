@@ -7,7 +7,6 @@ curs = conn.cursor(pymysql.cursors.DictCursor)
 
 # Read Excel file
 df = pd.read_excel('movieList.xls', skiprows=4)
-print(df)
 
 df = df.fillna({
     '영화명': '',
@@ -58,22 +57,22 @@ for index, row in df.iterrows():
             directors_set.add(director_name)
             conn.commit()
 
-# # Insert data into Genres relationship table
-# for index, row in df.iterrows():
-#     movie_name = row['영화명']
-#     genre = row['장르']
+# Insert data into Genres relationship table
+for index, row in df.iterrows():
+    movie_name = row['영화명']
+    genre = row['장르']
     
-#     if pd.notnull(genre):
-#         genres = genre.split(',')
-#         curs.execute("SELECT id FROM Movies WHERE movie_name = %s", movie_name)
-#         movie_id = curs.fetchone()['id']
-#         for genre_name in genres:
-#             genre_name = genre_name.strip()
-#             curs.execute("SELECT COUNT(*) AS count FROM Genres WHERE movie_id = %s AND genre = %s", (movie_id, genre_name))
-#             result = curs.fetchone()
-#             if result['count'] == 0:  # If the entry doesn't exist, insert it
-#                 curs.execute("INSERT INTO Genres (movie_id, genre) VALUES (%s, %s)", (movie_id, genre_name))
-#                 conn.commit()
+    if pd.notnull(genre):
+        genres = genre.split(',')
+        curs.execute("SELECT id FROM Movies WHERE movie_name = %s", movie_name)
+        movie_id = curs.fetchone()['id']
+        for genre_name in genres:
+            genre_name = genre_name.strip()
+            curs.execute("SELECT COUNT(*) AS count FROM Genres WHERE movie_id = %s AND genre = %s", (movie_id, genre_name))
+            result = curs.fetchone()
+            if result['count'] == 0:  # If the entry doesn't exist, insert it
+                curs.execute("INSERT INTO Genres (movie_id, genre) VALUES (%s, %s)", (movie_id, genre_name))
+                conn.commit()
 
 # Insert data into Movies_Directors relationship table
 for index, row in df.iterrows():
